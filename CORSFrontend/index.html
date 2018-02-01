@@ -1,0 +1,26 @@
+<html>
+<head>
+
+</head>
+<body>
+    <button onclick="loadXMLDoc()">Change background color</button>
+    <script type="text/javascript">
+    function loadXMLDoc() {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    document.body.style.backgroundColor = JSON.parse(xmlhttp.response).backgroundColor;
+                } else {
+                    console.log(xmlhttp.status);
+                }
+            }
+        };
+
+        xmlhttp.open("GET", "http://localhost:9999/data.json", true);
+        xmlhttp.send();
+    }
+    </script>   
+</body>
+</html>
