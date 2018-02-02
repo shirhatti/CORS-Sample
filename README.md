@@ -10,3 +10,41 @@ The CORS specification makes the distinction between **Simple** and **Preflighte
 
 ### Simple Requests
 
+Simple requests meet **ALL THREE** of the following criteria:
+
+- The HTTP method is either a HEAD/GET/POST
+- Apart from the headers set by the user agent, the only additional headers allowed are those defined in the Fetch spec as [CORS-safelisted-request-header](https://fetch.spec.whatwg.org/#cors-safelisted-request-header).
+- The only allowed valued for the `Content-Type` header are `application/x-www-form-urlencoded`, `multipart/form-data`, and `text/plain`.
+
+Here's what an example of a simple request might look like
+
+```
+GET http://bar.com/data.json HTTP/1.1
+Host: bar.com
+Connection: keep-alive
+Origin: http://foo.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36
+Accept: */*
+DNT: 1
+Referer: http://foo.com/
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9
+
+```
+And here's the response from the server
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Last-Modified: Thu, 01 Feb 2018 21:51:05 GMT
+Accept-Ranges: bytes
+ETag: "1f116fc2a69bd31:0"
+Server: Microsoft-IIS/10.0
+Access-Control-Allow-Origin: *
+X-Powered-By: ASP.NET
+Date: Thu, 01 Feb 2018 22:19:13 GMT
+Content-Length: 38
+
+{
+    "backgroundColor": "#ff0000"
+}
+```
