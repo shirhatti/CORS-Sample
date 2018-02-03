@@ -3,9 +3,10 @@
 
 </head>
 <body>
-    <button onclick="loadXMLDoc()">Change background color</button>
+    <button onclick="loadXMLDoc()">Simple Request</button>
+    <button onclick="loadXMLDoc(true)">Preflighted Request</button>
     <script type="text/javascript">
-    function loadXMLDoc() {
+    function loadXMLDoc(setAdditonalHeader) {
         var xmlhttp = new XMLHttpRequest();
 
         xmlhttp.onreadystatechange = function() {
@@ -19,6 +20,10 @@
         };
 
         xmlhttp.open("GET", "http://localhost:9999/data.json", true);
+        if (setAdditonalHeader)
+        {
+            xmlhttp.setRequestHeader("ADDITIONAL-HEADER", "addtional-header-value")
+        }
         xmlhttp.send();
     }
     </script>   
