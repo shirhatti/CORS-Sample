@@ -8,7 +8,7 @@ Cross Origin Resource Sharing (CORS) is a W3C standard that allows an user agent
 
 The CORS specification makes the distinction between **Simple** and **Preflighted** CORS requests and the IIS CORS can help you with both.
 
-## Simple Requests
+### Simple Requests
 
 Simple requests meet **ALL THREE** of the following criteria:
 
@@ -51,7 +51,7 @@ Content-Length: 38
 
 The header of interest here is the `Access-Control-Allow-Origin` header which the server sets to `http://foo.com`. Since that matches origin header in the request, the `XMLHttpRequest` succeeds. If the server did not indicate that via the Access-Control headers, the browser would fail the request in a manner indistinguishable from a network error.
 
-## Preflighted Requests
+### Preflighted Requests
 
 For any cross-origin requests that don't meet all three of the above criteria, the browser will send a preflight request with the `OPTIONS` HTTP method and will only proceed to send the actual request if indicated by the server in it's response to the pre-flight request.
 
@@ -116,14 +116,14 @@ Content-Length: 38
 }
 ```
 
-## What HTTP request headers can the browser send?
+### What HTTP request headers can the browser send?
 
 Besides the `Origin` header which is always set, there are two additional headers that sent as part of the pre-flight request
 
 - `Access-Control-Request-Method`: This header is used by the browser to indicate the HTTP method of the actual request
 - `Access-Control-Request-Headers`: This header is used by the browser to indicate the any addtional headers that may be sent as part of actual request that aren't a part of the fetch specification.
 
-## What HTTP response headers can the server send?
+### What HTTP response headers can the server send?
 
 - `Access-Control-Allow-Origin`
 - `Access-Control-Expose-Headers`
@@ -132,9 +132,70 @@ Besides the `Origin` header which is always set, there are two additional header
 - `Access-Control-Allow-Methods`
 - `Access-Control-Allow-Headers`
 
-## Configuring IIS CORS
+## Configuring IIS CORS module
 
+The IIS CORS module is configured via the `<cors>` section as part of the `<system.webServer>` section. The section can be configured at the server, site, or application level.
 
+```xml
+<?xml version="1.0"?>
+<configuration>
+  <system.webServer>
+    <cors enabled="true">
+      <add origin="*" />
+    </cors>
+  </system.webServer>
+</configuration>
+```
 
+In this simplest example, the CORS module module will allow requests from all origins. All other settings like what are the permissible methods and and headers are keyed of the origin. Let's look at another example on how you might use that.
+
+```xml
+<?xml version="1.0"?>
+<configuration>
+  <system.webServer>
+    <cors enabled="true">
+      <add origin="https://readonlyservice.constoso.com">
+        <allowMethods>
+            <add method="GET" />
+            <add method="HEAD" />
+        </allowMethods>
+      </add>
+      <add origin="https://readwriteservice.constoso.com">
+        <allowMethods>
+            <add method="GET" />
+            <add method="HEAD" />
+            <add method="POST" />
+            <add method="PUT" /> 
+            <add method="DELETE" />         
+        </allowMethods>
+      </add>
+    </cors>
+  </system.webServer>
+</configuration>
+```
+
+The detailed IIS CORS Configuration reference is available
+
+## Working with Windows Auth
+
+While this is by no means the only scenario solved by the CORS module, it was important enough to warrant calling out. Previously, if you tried to make a cross-domain request to an application that used Windows Auth, your preflight request would fail since the browser did not send credentials with the preflight request. There was no way to work around this without enabling anonymous authentication in your application. Since the CORS module kicks in before authentication, it makes it possible to handle a pre-flight request without comprimising on the security model of your application. Here's an example of what your **web.config** might look like.
+
+```xml
+<?xml version="1.0"?>
+<configuration>
+    <system.web>
+        <authentication mode="Windows"/>
+         <authorization>     
+            <allow roles="BUILTIN\Administrators" />   
+            <deny  users="*" />
+        </authorization> 
+    </system.web>
+    <system.webServer>
+        <cors enabled="true">
+            <add origin="*" />
+        </cors>
+    </system.webServer>
+</configuration>
+```
 
 
